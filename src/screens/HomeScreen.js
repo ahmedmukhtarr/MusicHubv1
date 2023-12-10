@@ -1,46 +1,57 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, FlatList, RefreshControl } from 'react-native';
+import { Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { createPost, getAllPosts } from '../API/Api';
+import { getUserDetail } from '../API/storage';
 
 const HomeScreen = ({ navigation }) => {
   const [postText, setPostText] = useState('');
   const [posts, setPosts] = useState([]);
   const [editingPostId, setEditingPostId] = useState(null);
- 
+  const [selectedImage, setSelectedImage] = useState(null); // Added state for selected image
+  const [selectedVideo, setSelectedVideo] = useState(null); // Added state for selected video
+  const [refreshing, setRefreshing] = useState(false);
+
   const handlePostTextChange = (text) => {
     setPostText(text);
   };
 
+  const createNewPost = async () => {
+    try {
+      const user = await getUserDetail();
+      const postData = { userId: user._id, text: postText, imageUrl: selectedImage };
+      const response = await createPost(postData);
+      alert(response?.message);
+    } catch (error) {
+      console.error("Error creating post:", error.response);
+    }
+  };
+
+  const getAllPostsApi = async () => {
+    try {
+      const response = await getAllPosts();
+      setPosts(response?.data)
+    } catch (error) {
+      console.error("Error fetching posts:", error.response);
+    }
+  };
+
   const handlePost = () => {
     if (postText) {
-      const newPost = {
-        id: Date.now().toString(),
-        text: postText,
-      };
-
-      setPosts([newPost, ...posts]);
-      setPostText('');
+      createNewPost();
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Fetch updated data or perform any other refresh logic
+    await getAllPostsApi(); // You need to implement a function to fetch fresh data
+    setRefreshing(false);
   };
 
   const handleEdit = (postId) => {
     setEditingPostId(postId);
-  };
-
-  const handleSaveEdit = (postId, newText) => {
-    const updatedPosts = posts.map((post) => {
-      if (post.id === postId) {
-        return { ...post, text: newText };
-      }
-      return post;
-    });
-
-    setPosts(updatedPosts);
-    setEditingPostId(null);
-  };
-
-  const handleDelete = (postId) => {
-    const updatedPosts = posts.filter((post) => post.id !== postId);
-    setPosts(updatedPosts);
   };
 
   // Function to navigate to the Comments screen for a post
@@ -49,9 +60,62 @@ const HomeScreen = ({ navigation }) => {
     // For example, using React Navigation:
     // navigation.navigate('CommentsScreen', { postId });
   };
+  const handleUploadPicture = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        // Set the selected image URI
+        console.log(result.assets[0].uri);
+        setSelectedImage(result.assets[0].uri);
+
+        // Further processing or uploading logic can be added here.
+      }
+    } catch (error) {
+      console.error('Error fetching or processing the image:', error);
+    }
+  };
+
+  const handleUploadVideo = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!result.canceled) {
+        // Set the selected video URI
+        console.log(result.assets[0].uri);
+        setSelectedVideo(result.assets[0].uri);
+  
+        // // Generate a thumbnail for the video
+        // const thumbnail = await generateThumbnail(result.assets[0].uri);
+        // console.log(thumbnail);
+  
+        // Further processing or uploading logic can be added here.
+      }
+    } catch (error) {
+      console.error('Error fetching or processing the video:', error);
+    }
+  };
+
+  useEffect(() => {
+    getAllPostsApi();
+  }, [])
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}
+    refreshControl={
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+  }
+    >
      
       <TextInput
         style={styles.textInput}
@@ -61,25 +125,21 @@ const HomeScreen = ({ navigation }) => {
         multiline={true}
         numberOfLines={4}
       />
+      {selectedImage && <Image source={{ uri: selectedImage }} style={styles.selectedImage} />}
 
       <View style={styles.uploadOptions}>
         <TouchableOpacity
           style={styles.uploadButton}
-          onPress={() => {
-            // Handle uploading a video here
-          }}
+          onPress={handleUploadVideo}
         >
           <Text style={styles.uploadText}>Upload Video</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.uploadButton}
-          onPress={() => {
-            // Handle uploading a picture here
-          }}
+          onPress={handleUploadPicture}
         >
           <Text style={styles.uploadText}>Upload Picture</Text>
         </TouchableOpacity>
-        
       </View>
 
       <TouchableOpacity style={styles.postButton} onPress={handlePost}>
@@ -89,11 +149,11 @@ const HomeScreen = ({ navigation }) => {
       <Text style={styles.postFeedHeading}>Post Feed</Text>
 
       <FlatList
-        data={posts}
+        data={posts.slice().reverse()}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.postSegment}>
-            {editingPostId === item.id ? (
+        renderItem={({ item, index }) => (
+          <View style={styles.postSegment} key={index}>
+            {/* {editingPostId === item.id ? (
               <View>
                 <TextInput
                   style={styles.editInput}
@@ -109,10 +169,10 @@ const HomeScreen = ({ navigation }) => {
                   <Text style={styles.editButtonText}>Save</Text>
                 </TouchableOpacity>
               </View>
-            ) : (
+            ) : ( */}
               <View>
-                
                 <Text>{item.text}</Text>
+                {item?.imageUrl && <Image source={{ uri: item.imageUrl }} style={styles.selectedImage} />}
                 <View style={styles.editDeleteButtons}>
                 <TouchableOpacity
                     style={styles.likeButton}
@@ -140,7 +200,7 @@ const HomeScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-            )}
+            {/* )} */}
           </View>
         )}
       />
@@ -191,6 +251,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  badge: {
+    backgroundColor: "#000",
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10
+  }, 
   postFeedHeading: {
     fontSize: 30,
     fontWeight: 'bold',
@@ -257,6 +325,13 @@ const styles = StyleSheet.create({
   likeButtonText: {
     color: 'purple',
     textAlign: 'center',
+  },
+  selectedImage: {
+    marginTop: 10,
+    marginBottom: 10,
+    width: 140,
+    height: 140,
+    borderRadius: 10,
   },
 });
 

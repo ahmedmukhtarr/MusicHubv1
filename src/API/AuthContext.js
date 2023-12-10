@@ -17,8 +17,10 @@ export const AuthProvider = ({ children }) => {
     const Data = { email, password };
     setIsLoadings(true);
     await Login(Data)
-      .then((res) => {
-        console.log(res.data);
+      .then(async (res) => {
+        await AsyncStorage.setItem("token", JSON.stringify(res.data?.token));
+        await AsyncStorage.setItem("userdata",  JSON.stringify(res.data?._doc));
+        console.log(res.data?._doc);
         setUserToken(res.data?.token);
         alert("User loggedin successfully");
       })
@@ -41,8 +43,8 @@ export const AuthProvider = ({ children }) => {
     };
     setIsLoadings(true);
     await Register(Data)
-    .then((res) => {
-      console.log(res.data)
+    .then(async (res) => {
+      await AsyncStorage.setItem("token", res.data?.token);
       alert("User Registered");
       setIsLoadings(false);
     })
@@ -56,8 +58,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   // LogOut
-  const Logout = () => {
-    console.log("remove", usertoken);
+  const Logout = async () => {
+    await AsyncStorage.removeItem("token");
     setUserToken(null);
     setUserId(null);
   };
