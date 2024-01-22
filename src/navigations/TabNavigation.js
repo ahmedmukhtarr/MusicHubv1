@@ -22,17 +22,8 @@ export const TabNavigation = () => {
           ),
         }}
       />
-    
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
-          ),
-        }}
-      />
+
+      
         <Tab.Screen
         name="Home"
         component={HomeScreen}

@@ -1,8 +1,13 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import MusicPlayer from './MusicPlayer';
+import { getAllMusic } from '../API/Api';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MusicScreen = ({navigation}) => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [tracks, setTracks] = useState([]);
+
   const handleUploadMusic = () => {
     // Handle navigation to the music upload screen.
   };
@@ -14,6 +19,46 @@ const MusicScreen = ({navigation}) => {
   const handlePlaylists = () => {
     // Handle navigation to the playlists screen.
   };
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await getAllMusic();
+  //       console.log("music data", response?.data);
+  //     } catch (error) {
+  //       console.error("Error fetching posts:", error.response);
+  //     }
+  //   }
+
+  //   fetchData();
+  // }, [])
+  
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       setRefreshing(true);
+  //       const response = await getAllMusic();
+  //       if(response?.success) {
+  //         setRefreshing(false);
+  //         setTracks(response?.data);
+  //       }
+  //     } catch (error) {
+  //       setRefreshing(false);
+  //       console.error("Error fetching posts:", error.response);
+  //     }
+  //   }
+
+  //   fetchData();
+  //   }, [])
+  // );
+
+  const audioFiles = [
+    { title: 'Dil Nu', file: require('./../../assets/dilnu.mp3') },
+    { title: 'Mocking Bird', file: require('./../../assets/2.mp3') },
+    { title: 'Hona Tha Pyaar', file: require('./../../assets/3.mp3') },
+    // Add more audio files as needed
+  ];
 
   return (
     <View style={styles.container}>
@@ -27,21 +72,28 @@ const MusicScreen = ({navigation}) => {
       />
 
       {/* Three Touchable Containers */}
-      <View style={styles.touchableContainer}>
+      <View 
+        style={styles.touchableContainer}
+      >
         <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('MusicUpload')}>
-          <Text style={styles.touchableText}>Upload Music</Text>
+          <Text style={styles.touchableText}>Upload</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('Library')}>
+          <Text style={styles.touchableText}>Library</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('Library')}>
           <Text style={styles.touchableText}>Library</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.touchable2} onPress={() => navigation.navigate('Playlist')}>
-        <Text style={styles.touchableText}>Playlists</Text>
-      </TouchableOpacity>
 
-      <View>
-      <MusicPlayer/>
-      </View>
+      {refreshing ? (
+        <ActivityIndicator size="small" color="blue" />
+       ) : (
+        <View style={{ flex: 1, width: '100%' }}>
+          <MusicPlayer tracks={audioFiles} />
+        </View>
+       )}
+
     </View>
   );
 };
@@ -51,10 +103,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: 'center',
-    
-  },
-  content: {
-    flex: 1,
+    backgroundColor: "#E6E6FA",
   },
   searchBar: {
     width: '100%',
@@ -63,41 +112,28 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
-    marginBottom: 20,
   },
   touchableContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
     gap: 5,
-    marginTop: 170, 
+    marginTop: 10, 
   },
   touchable: {
-    backgroundColor: '#007AFF',
-    padding: 15,
+    padding: 10,
     borderRadius: 10,
-    width: '47%',
+    width: '30%',
     height: '100%',
     alignItems: 'center',
-  },
-  touchable2: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    width: '96%',
-    height: '20%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#CBC3E3',
   },
   touchableText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
     fontWeight: 'bold',
     alignItems: 'center',
-    
   },
-  
 });
 
 export default MusicScreen;

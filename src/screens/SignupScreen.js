@@ -1,5 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ImageBackground, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  Alert,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../API/AuthContext';
@@ -16,48 +25,67 @@ const SignupScreen = () => {
 
   const [agreed, setAgreed] = useState(false);
 
+  const [errorStyle, setErrorStyle] = useState({
+    username: null,
+    email: null,
+    password: null,
+    confirmPassword: null,
+  });
+
   const toggleAgreement = () => {
     setAgreed(!agreed);
   };
 
   const handleSignup = async () => {
     if (!agreed) {
-      alert('Please agree to the Terms and Conditions.');
+      Alert.alert('Error', 'Please agree to the Terms and Conditions.');
       return;
     }
 
     if (userData.username.trim() === '') {
-      alert('Please enter a username.');
+      Alert.alert('Error', 'Please enter a username.');
+      setErrorStyle({ ...errorStyle, username: styles.errorBorder });
       return;
     }
-  
+
     if (!/^[A-Za-z]+$/.test(userData.username)) {
-      alert('Username can only contain alphabetic characters.');
+      Alert.alert('Error', 'Username can only contain alphabetic characters.');
+      setErrorStyle({ ...errorStyle, username: styles.errorBorder });
       return;
     }
 
     if (userData.email.trim() === '') {
-      alert('Please enter an email address.');
+      Alert.alert('Error', 'Please enter an email address.');
+      setErrorStyle({ ...errorStyle, email: styles.errorBorder });
       return;
     }
 
     if (!validateEmail(userData.email)) {
-      alert('Please enter a valid email address.');
+      Alert.alert('Error', 'Please enter a valid email address.');
+      setErrorStyle({ ...errorStyle, email: styles.errorBorder });
       return;
     }
 
-    if (userData.password.length < 6) {
-      alert('Password must be at least 6 characters long.');
+    if (userData.password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters long.');
+      setErrorStyle({ ...errorStyle, password: styles.errorBorder });
       return;
     }
 
     if (userData.password !== userData.confirmPassword) {
-      alert('Passwords do not match.');
+      Alert.alert('Error', 'Passwords do not match.');
+      setErrorStyle({ ...errorStyle, confirmPassword: styles.errorBorder });
       return;
     }
 
     try {
-      Registered(userData.username, userData.email, userData.password, userData.confirmPassword)
+      setErrorStyle({
+        username: null,
+        email: null,
+        password: null,
+        confirmPassword: null,
+      });
+      Registered(userData.username, userData.email, userData.password, userData.confirmPassword);
     } catch (error) {
       console.error('Error saving user data:', error);
     }
@@ -76,7 +104,8 @@ const SignupScreen = () => {
       blurRadius={5}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Sign Up</Text>
+        <Text style={styles.title}>Welcome to MusicHub</Text>
+        <Text style={styles.title1}>Sign Up</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -146,7 +175,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 35,
+    fontSize: 30,
+    fontWeight: '900',
+    marginBottom: 20,
+    color: 'white',
+  },
+  title1: {
+    fontSize: 25,
     fontWeight: '900',
     marginBottom: 20,
     color: 'white',

@@ -27,8 +27,8 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": [
-      "fb1432081244038115"
+    "scheme": [ "FacebookLogin",
+      "fb7578729042160651"
     ]
   }
 }

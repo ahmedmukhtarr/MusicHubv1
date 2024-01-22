@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useState } from "react";
-import { Login, Register } from "./Api";
+import { Login, Register, resetPassword as apiResetPassword} from "./Api";
 
 export const AuthContext = createContext();
 
@@ -20,9 +20,9 @@ export const AuthProvider = ({ children }) => {
       .then(async (res) => {
         await AsyncStorage.setItem("token", JSON.stringify(res.data?.token));
         await AsyncStorage.setItem("userdata",  JSON.stringify(res.data?._doc));
-        console.log(res.data?._doc);
+        console.log(res.data);
         setUserToken(res.data?.token);
-        alert("User loggedin successfully");
+        alert("Logging In");
       })
       .catch((e) => {
         if (e.response) {
@@ -63,7 +63,22 @@ export const AuthProvider = ({ children }) => {
     setUserToken(null);
     setUserId(null);
   };
+ 
+  const resetPassword = async (resetToken, newPassword, confirmPassword) => {
+    try {
+      // Get the authentication token from your context or wherever it's stored
+      const authToken = await getAuthToken();
 
+      // Call the resetPassword function from your API, passing the authentication token
+      const response = await apiResetPassword(resetToken, newPassword, confirmPassword, authToken);
+
+      // Display a success message or navigate to another screen
+      alert('Success', response.message);
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert('Error', 'Failed to reset password. Please try again.');
+    }
+  };
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +91,7 @@ export const AuthProvider = ({ children }) => {
         IsLoadings,
         signInError,
         userData,
+        resetPassword,
       }}
     >
       {children}

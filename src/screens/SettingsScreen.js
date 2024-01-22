@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { AuthContext } from '../API/AuthContext';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const SettingsScreen = ({ navigation }) => {
   const { Logout } = useContext(AuthContext); 
@@ -22,10 +22,10 @@ const SettingsScreen = ({ navigation }) => {
       <Text style={styles.title}>Account Settings</Text>
       <TouchableOpacity
         style={styles.settingItem}
-        onPress={() => navigateTo('EmailSettings')}
+        onPress={() => navigateTo('ProfileScreen')}
       >
-        <Text style={styles.settingText}>Email</Text>
-        <FontAwesome name="envelope" style={styles.settingIcon} />
+        <Text style={styles.settingText}>Profile</Text>
+        <MaterialCommunityIcons name="account" style={styles.settingIcon} />
       </TouchableOpacity>
       
       <TouchableOpacity
@@ -37,10 +37,10 @@ const SettingsScreen = ({ navigation }) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.settingItem}
-        onPress={() => navigateTo('VideoSettings')}
+        onPress={() => navigateTo('CustomerService')}
       >
-        <Text style={styles.settingText}>Video Settings</Text>
-        <FontAwesome name="video-camera" style={styles.settingIcon} />
+        <Text style={styles.settingText}>Customer Service</Text>
+        <FontAwesome name="user" style={styles.settingIcon} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.settingItem}
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#E6E6FA",
   },
   title: {
     fontSize: 24,

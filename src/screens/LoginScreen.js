@@ -18,9 +18,24 @@ const LoginScreen = ({ navigation }) => {
 
 
   const [request, response, promptAsync] = Facebook.useAuthRequest({
-    clientId: 'YOUR_FACEBOOK_APP_ID', // Replace with your Facebook App ID
+    clientId: '7578729042160651', // Replace with your Facebook App ID
   });
 
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      fetch(`https://graph.facebook.com/me?access_token=${authentication.accessToken}&fields=id,name,email`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle user data (data.id, data.name, data.email)
+          setUser(data);
+        })
+        .catch((error) => {
+          console.error('Error fetching Facebook user data:', error);
+        });
+    }
+  }, [response]);
+  
   useEffect(() => {
     checkUserLogin();
   }, []);
@@ -92,7 +107,8 @@ const LoginScreen = ({ navigation }) => {
       style={styles.backgroundImage}
       blurRadius={5}
     >
-      <View style={styles.container}>
+     <View style={styles.container}>
+        <Text style={styles.appTitle}> MusicHub </Text>
         <Text style={styles.title}>Login</Text>
         <View style={styles.inputContainer}>
           <EvilIcons name="user" size={24} color="white" style={styles.icon} />
@@ -129,7 +145,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('SignUp')}>
             <Text style={styles.linkText}>Sign Up</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.link}>
+          <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('ForgotPassword')}>
             <Text style={styles.linkText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
@@ -153,11 +169,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 35,
+    fontSize: 27,
     color: 'white',
     marginBottom: 20,
     fontWeight: '900',
   },
+  appTitle: {
+    fontSize: 45,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 20,
+  },
+
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',

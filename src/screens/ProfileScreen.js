@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Card, Button, ListItem } from 'react-native-elements';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { profileDetails } from '../API/Api';
+import { useFocusEffect } from '@react-navigation/native';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}) => {
   // User data state
-  const [userName, setUserName] = useState('Ahmed Mukhtar');
-  const [emailAddress, setEmailAddress] = useState('ahmed@gmail.com');
+  const [user, setUser] = useState({});
 
+   useFocusEffect(
+    React.useCallback(() => {
+    const fetchData = async () => {
+      const user = await AsyncStorage.getItem("userdata");
+      const userData = JSON.parse(user);
+      try {
+          const data = await profileDetails(userData?._id);
+          setUser(data.user);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    }
+
+    fetchData();
+    }, [])
+  );
   // Navigation to Edit Profile Screen
-  const navigateToEditProfile = () => {
-    // Navigate to the Edit Profile screen.
-    // You should set up your navigation system for this.
-  };
+  
 
   const listeningHistory = [
     {
@@ -43,10 +58,13 @@ const ProfileScreen = () => {
       <Card>
         <View style={styles.userInfoContainer}>
           <Text style={styles.userInfoTitle}>User Information</Text>
-          <Text style={styles.userInfoText}>Name: {userName}</Text>
-          <Text style={styles.userInfoText}>Email: {emailAddress}</Text>
+          <Text style={styles.userInfoText}>Name: {user?.name}</Text>
+          <Text style={styles.userInfoText}>Email: {user?.email}</Text>
         </View>
-        <Button title="Edit Profile" onPress={navigateToEditProfile} buttonStyle={styles.editButton} />
+        <Button title="Edit Profile" onPress={() => navigation.navigate('EditProfile', {
+          userId:user?._id,
+          userName:user?.name
+        })} buttonStyle={styles.editButton} />
       </Card>
 
       <Card>
