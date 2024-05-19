@@ -66,7 +66,7 @@ const ProfileScreen = ({navigation}) => {
           userName:user?.name
         })} buttonStyle={styles.editButton} />
       </Card>
-
+{/* 
       <Card>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Listening History</Text>
@@ -93,7 +93,7 @@ const ProfileScreen = ({navigation}) => {
             />
           ))}
         </View>
-      </Card>
+      </Card> */}
     </ScrollView>
   );
 };

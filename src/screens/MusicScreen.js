@@ -20,18 +20,19 @@ const MusicScreen = ({navigation}) => {
     // Handle navigation to the playlists screen.
   };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await getAllMusic();
-  //       console.log("music data", response?.data);
-  //     } catch (error) {
-  //       console.error("Error fetching posts:", error.response);
-  //     }
-  //   }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllMusic();
+        setTracks(response?.data);
+        console.log("music data", response?.data);
+      } catch (error) {
+        console.error("Error fetching posts:", error.response);
+      }
+    }
 
-  //   fetchData();
-  // }, [])
+    fetchData();
+  }, [])
   
   // useFocusEffect(
   //   React.useCallback(() => {
@@ -78,19 +79,19 @@ const MusicScreen = ({navigation}) => {
         <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('MusicUpload')}>
           <Text style={styles.touchableText}>Upload</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('Library')}>
+        {/* <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('Library')}>
           <Text style={styles.touchableText}>Library</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.touchable} onPress={() => navigation.navigate('Library')}>
           <Text style={styles.touchableText}>Library</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {refreshing ? (
         <ActivityIndicator size="small" color="blue" />
        ) : (
         <View style={{ flex: 1, width: '100%' }}>
-          <MusicPlayer tracks={audioFiles} />
+          <MusicPlayer tracks={tracks} />
         </View>
        )}
 

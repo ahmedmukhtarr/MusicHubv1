@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, Button, Alert, Pressable, TouchableOpacity, ImageBackground } from 'react-native';
 import { resetPassword } from '../API/Api';
+
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');
@@ -27,39 +28,51 @@ const ForgotPasswordScreen = () => {
       console.log(error);
     }
     // For demonstration purposes, show an alert indicating success
-    // Alert.alert('Success', 'Password reset successful');
+    Alert.alert('Success', 'Password reset successful');
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>Email:</Text>
+    <ImageBackground
+    source={require('./../../assets/images/background.jpg')}
+    style={{  flex: 1,
+      resizeMode: 'cover', // or 'stretch' as per your preference
+      justifyContent: 'center',}}
+    blurRadius={5}
+  >
+    <View style={{ padding: 20}}>
+      <Text style={{color: 'white'}}>Email:</Text>
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+    
+        style={{ height: 40, borderColor: 'white', borderWidth: 1, marginBottom: 10, borderRadius: 10}}
         onChangeText={setEmail}
         value={email}
         keyboardType="email-address"
         autoCapitalize="none"
       />
 
-      <Text>New Password:</Text>
+      <Text style={{color: 'white'}}>New Password:</Text>
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        style={{ height: 40, borderColor: 'white', borderWidth: 1, marginBottom: 10, borderRadius: 10 }}
         onChangeText={setNewPassword}
         value={newPassword}
         secureTextEntry
       />
 
-      <Text>Confirm Password:</Text>
+      <Text style={{color: 'white'}}>Confirm Password:</Text>
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        style={{ height: 40, borderColor: 'white', borderWidth: 1, marginBottom: 10, borderRadius: 10 }}
         onChangeText={setConfirmPassword}
         value={confirmPassword}
         secureTextEntry
       />
 
-      <Button title="Reset Password" onPress={handleResetPassword} />
+      <TouchableOpacity style={{borderColor: 'white',borderRadius: 10, borderWidth: 1, alignItems: 'center', backgroundColor: 'pink', height: 30, width: 130}} onPress={handleResetPassword}>
+            <Text>Reset Password</Text>
+          </TouchableOpacity>
     </View>
+    </ImageBackground>
   );
+
 };
 
 export default ForgotPasswordScreen;

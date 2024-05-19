@@ -28,13 +28,13 @@ const SettingsScreen = ({ navigation }) => {
         <MaterialCommunityIcons name="account" style={styles.settingIcon} />
       </TouchableOpacity>
       
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.settingItem}
         onPress={() => navigateTo('NotificationSettings')}
       >
         <Text style={styles.settingText}>Notification Settings</Text>
         <FontAwesome name="bell" style={styles.settingIcon} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         style={styles.settingItem}
         onPress={() => navigateTo('CustomerService')}
@@ -42,13 +42,13 @@ const SettingsScreen = ({ navigation }) => {
         <Text style={styles.settingText}>Customer Service</Text>
         <FontAwesome name="user" style={styles.settingIcon} />
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.settingItem}
         onPress={() => navigateTo('LanguageSettings')}
       >
         <Text style={styles.settingText}>Language Settings</Text>
         <FontAwesome name="globe" style={styles.settingIcon} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         style={styles.settingItem}
         onPress={() => navigateTo('AppInfoScreen')}

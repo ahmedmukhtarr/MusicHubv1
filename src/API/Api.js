@@ -2,8 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: ` https://01fe-182-183-25-242.ngrok-free.app/api`,
+  baseURL: `https://71b2-182-182-214-61.ngrok-free.app`,
 });
+
+export const imageBaseUrl = "https://71b2-182-182-214-61.ngrok-free.app";
 
 // Add a function to set the Authorization header
 const getAuthToken = async () => {
@@ -116,12 +118,12 @@ export const profileDetails = async (userId) => {
 
 // Post APIS
 
- export const createPost = async (postData) => {
+export const createPost = async (postData) => {
   try {
     const token = await getAuthToken();
     const response = await axiosClient.post("/posts/create", postData, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data', // Change content type to multipart/form-data
         Authorization: `Bearer ${token}`,
       }
     });
@@ -179,15 +181,24 @@ export const deletePost = async (postId) => {
   }
 };
 
-export const addComment = async (postId, commentData) => {
+export const addComment = async (postId, text, userId) => {
+  const authToken = await getAuthToken();
   try {
-    const response = await axiosClient.post(`/posts/add/comment/${postId}`, commentData);
+    // Update your axios request in the frontend
+    const response = await axiosClient.post(`/posts/add/comment/${postId}`, {
+      text: text,
+      userId: userId
+    }, {
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Replace 'userToken' with your actual token variable
+      },
+    });
     return response?.data;
   } catch (error) {
     console.error('Error adding comment:', error);
     throw error;
   }
-};
+}
 
 export const likePost = async (postId, userId) => {
   const authToken = await getAuthToken();
@@ -282,6 +293,108 @@ export const deleteMusic = async (musicId) => {
     return response?.data;
   } catch (error) {
     console.error('Error deleting music:', error);
+    throw error;
+  }
+};
+
+// Complaint APIs
+
+export const sendComplaint = async (complaintData, userId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.post('/complaint/submit-complaint', {
+      complaint: complaintData,
+      userId
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });    
+    return response?.data;
+  } catch (error) {
+    console.error('Error sending complaint:', error);
+    throw error;
+  }
+};
+
+export const getAllComplaints = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get('/complaints/get-complaints', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching complaints:', error);
+    throw error;
+  }
+};
+
+export const resolveComplaint = async (complaintId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.put(`/complaints/resolve/${complaintId}`, null, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error resolving complaint:', error);
+    throw error;
+  }
+};
+
+export const deleteComplaint = async (complaintId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.delete(`/complaints/delete/${complaintId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error deleting complaint:', error);
+    throw error;
+  }
+};
+export const getAllMerchandise = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get('/merchandise/getAll', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching merchandise:', error);
+    throw error;
+  }
+};
+
+export const getMerchandiseById = async (merchandiseId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get(`/merchandise/${merchandiseId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching merchandise by ID:', error);
     throw error;
   }
 };

@@ -5,8 +5,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
+import { imageBaseUrl } from '../API/Api';
 
 const MusicPlayer = ({ onLogout, tracks }) => {
+  console.log("Tracks", tracks);
   const [sound, setSound] = useState();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -18,37 +20,52 @@ const MusicPlayer = ({ onLogout, tracks }) => {
   useEffect(() => {
     const loadSound = async () => {
       if (sound) {
-        await sound.stopAsync(); // Stop the current sound before loading a new one
-        sound.unloadAsync();
+        // Stop and unload the current sound if it exists
+        await sound.stopAsync();
+        await sound.unloadAsync();
       }
-
-      const { sound: newSound } = await Audio.Sound.createAsync(tracks[currentIndex].file);
+    
+      const fullUrl = `${imageBaseUrl}${tracks[currentIndex]?.file}`;
+      const { sound: newSound, status } = await Audio.Sound.createAsync(
+        { uri: fullUrl },
+        { shouldPlay: isPlaying, position: currentTime } // Start playback from stored position
+      );
+    
       setSound(newSound);
-
-      const status = await newSound.getStatusAsync();
-      setTotalDuration(status.durationMillis);
-
-      if (isPlaying) {
-        await newSound.playAsync();
-      }
-
-      // Set playback status update only if sound is defined
-      if (newSound) {
-        newSound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+    
+      if (status.isLoaded) {
+        setTotalDuration(status.durationMillis);
+    
+        // Set playback status update only if sound is defined and loaded
+        if (newSound) {
+          newSound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+        }
+      } else {
+        console.error('Failed to load sound');
       }
     };
-
+    
+  
     const onPlaybackStatusUpdate = (status) => {
       if (status.didJustFinish && isReplay) {
         // Replay is enabled, reset the sound to the beginning and play again
         sound.replayAsync();
       }
-
+  
       setCurrentTime(status.positionMillis);
     };
-
+  
     loadSound();
-  }, [currentIndex, isReplay]);
+  
+    // Clean up function to stop and unload the sound when component unmounts
+    return () => {
+      if (sound) {
+        sound.stopAsync();
+        sound.unloadAsync();
+      }
+    };
+  }, [imageBaseUrl, currentIndex]);
+  
 
   
 
@@ -57,12 +74,16 @@ const MusicPlayer = ({ onLogout, tracks }) => {
       const status = await sound.getStatusAsync();
       if (status.isPlaying) {
         await sound.pauseAsync();
+        // Store the current playback position
+        setCurrentTime(status.positionMillis);
       } else {
+        // Resume playback from the stored position
         await sound.playAsync();
       }
       setIsPlaying(!status.isPlaying);
     }
   };
+  
 
   const playNext = async () => {
     if (sound) {
@@ -104,10 +125,12 @@ const MusicPlayer = ({ onLogout, tracks }) => {
   };
 
   const onSlidingComplete = async (value) => {
+    console.log(value);
     if (sound) {
       await sound.setPositionAsync(value);
+      setCurrentTime(value); // Set the current time after seeking
     }
-  };
+  };  
   
 
   const formatTime = (milliseconds) => {

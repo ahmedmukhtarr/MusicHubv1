@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, FlatLi
 import { Image } from 'react-native';
 import { Video } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
-import { createPost, deletePost, getAllPosts, likePost, unlikePost } from '../API/Api';
+import { addComment, createPost, deletePost, getAllPosts, imageBaseUrl, likePost, unlikePost, updatePost } from '../API/Api';
 import { getUserDetail } from '../API/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,6 +20,9 @@ const HomeScreen = ({ navigation }) => {
   const [currentCommentItemId, setCurrentCommentItemId] = useState(null);
   const [comments, setComments] = useState([]);
   const [userData, setUserData] = useState({});
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [showComments, setShowComments] = useState(true);
+
 
 
 
@@ -29,18 +32,33 @@ const HomeScreen = ({ navigation }) => {
 
   const createNewPost = async () => {
     try {
-      const user = await getUserDetail();
-      const postData = { userId: user._id, text: postText, imageUrl: selectedImage, videoUrl: selectedVideo };
-      const response = await createPost(postData);
-      alert(response?.message);
+      const fileUrl = selectedImage?.uri;
+      const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+      // Extract the file extension (file type)
+      const fileType = fileName.substring(fileName.lastIndexOf('.') + 1);
 
+      const user = await getUserDetail();
+      // const postData = { userId: user._id, text: postText, image: selectedImage};
+      const formData = new FormData();
+
+      formData.append('image', {
+        uri: fileUrl,
+        type: `image/${fileType}`, // Adjust the type based on the image format if needed
+        name: fileName, // You can set a custom name for the image file
+      });
+      formData.append('userId', user._id);
+      formData.append('text', postText);
+
+      const response = await createPost(formData);
+      alert(response?.message);
       // Reset the state after posting
       setPostText('');
       setSelectedImage(null);
-      setSelectedVideo(null);
+      
 
       // Fetch updated posts
       await getAllPostsApi();
+      console.log(response?.data);
     } catch (error) {
       console.error("Error creating post:", error.response);
     }
@@ -56,15 +74,10 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const updatePost = async (postId, postData) => {
+  const updatePostApi = async (postId, postData) => {
     try {
-      const response = await axiosClient.put(`/posts/update/${postId}`, postData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await getAuthToken()}`,
-        },
-      });
-      return response?.data;
+      const response = await updatePost(postId, postData);
+
     } catch (error) {
       console.error('Error updating post:', error);
       throw error;
@@ -80,23 +93,17 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const addComment = async (postId, commentData) => {
+  const addCommentApi = async () => {
+    console.log(selectedPostId, commentText, userData?._id);
     try {
-      const response = await axiosClient.post(`/posts/add/comment/${postId}`, commentData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${await getAuthToken()}`,
-        },
-      });
+      const response = await addComment(selectedPostId, commentText, userData?._id);
       // Assuming response.data is the newly added comment
-      setComments([...comments, response?.data]);
-      return response?.data;
+      console.log("dataaaa", response?.data);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error adding comment:', error.response.data.message);
       throw error;
     }
   };
-
 
 
   const likePostApi = async (postId, userId) => {
@@ -144,17 +151,6 @@ const HomeScreen = ({ navigation }) => {
     setEditingPostId(postId);
   };
 
-  // Function to navigate to the Comments screen for a post
-  const viewComments = async (postId) => {
-    try {
-      const response = await axiosClient.get(`/posts/comments/${postId}`);
-      setComments(response?.data || []);
-      setCurrentCommentItemId(postId);
-      setCommentModalVisible(true);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
-  };
 
 
 
@@ -169,8 +165,10 @@ const HomeScreen = ({ navigation }) => {
 
       if (!result.canceled) {
         // Set the selected image URI
+        console.log(result.assets[0].fileName);
         console.log(result.assets[0].uri);
-        setSelectedImage(result.assets[0].uri);
+        console.log(result.assets[0].type);
+        setSelectedImage(result.assets[0]);
 
         // Further processing or uploading logic can be added here.
       }
@@ -224,142 +222,152 @@ const HomeScreen = ({ navigation }) => {
         multiline={true}
         numberOfLines={4}
       />
-      {selectedImage && <Image source={{ uri: selectedImage }} style={styles.selectedImage} />}
+      {selectedImage?.uri && <Image source={{ uri: selectedImage?.uri }} style={styles.selectedImage} />}
 
       <View style={styles.uploadOptions}>
         <TouchableOpacity
           style={styles.uploadButton}
-          onPress={handleUploadVideo}
+          onPress={handleUploadPicture}
         >
-          <Text style={styles.uploadText}>Upload Video</Text>
+          <Text style={styles.uploadText}>Upload Photo</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.uploadButton}
-          onPress={handleUploadPicture}
+          onPress={handlePost}
         >
-          <Text style={styles.uploadText}>Upload Picture</Text>
+          <Text style={styles.uploadText}>Post</Text>
         </TouchableOpacity>
       </View>
-
+{/* 
       <TouchableOpacity style={styles.postButton} onPress={handlePost}>
         <Text style={styles.postButtonText}>Post</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Text style={styles.postFeedHeading}>Post Feed</Text>
 
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={commentModalVisible}
-        onRequestClose={() => setCommentModalVisible(false)}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {/* Display comments above the input box */}
-            <FlatList
-              data={comments}
-              keyExtractor={(item) => item ? item.commentId : null}
-              renderItem={({ item }) => (
-                <View style={styles.commentContainer}>
-                  <Text>{item.text}</Text>
-                </View>
-              )}
-            />
+     
 
 
-            {/* Input box for entering a new comment */}
-            <TextInput
-              style={styles.commentInput}
-              placeholder="Enter your comment..."
-              onChangeText={setCommentText}
-              value={commentText}
-              multiline={true}
-              numberOfLines={4}
-            />
-            <TouchableOpacity
-              style={styles.commentSubmitButton}
-              onPress={() => {
-                addComment(currentCommentItemId, { text: commentText });
-                setCommentModalVisible(false);
-              }}
-            >
-              <Text style={styles.commentSubmitText}>Submit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.commentCloseButton}
-              onPress={() => setCommentModalVisible(false)}
-            >
-              <Text style={styles.commentCloseText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       <FlatList
-        data={posts.slice().reverse()}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <View style={styles.postSegment} key={index}>
-            <View>
-              <Text style={styles.username}>{item?.user?.name}</Text>
-              <Text>{item.text}</Text>
-              {item?.imageUrl && <Image source={{ uri: item.imageUrl }} style={styles.selectedImage} />}
-              {selectedVideo && (
-                <Video
-                  source={{ uri: selectedVideo }}
-                  rate={1.0}
-                  volume={1.0}
-                  isMuted={false}
-                  resizeMode="cover"
-                  shouldPlay={false} // Set to true if you want the video to start playing automatically
-                  isLooping={false}
-                  style={{ width: 300, height: 300 }}
-                />
-              )}
-              <View style={styles.editDeleteButtons}>
-              <TouchableOpacity
-                style={styles.likeButton}
-                onPress={() => {
-                  if (item?.likes?.some(like => like === userData?._id)) {
-                    // If user already liked the post, call unlikePostApi
-                    unlikePostApi(item._id, userData?._id);
-                  } else {
-                    // If user has not liked the post, call likePostApi
-                    likePostApi(item._id, userData?._id);
-                  }
-                }}
-              >
-                <Text style={styles.likeButtonText}>
-                  {item?.likes?.some(like => like === userData?._id)
-                    ? `Unlike ${item?.likes?.length}`
-                    : `Like ${item?.likes?.length}`}
-                </Text>
-              </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => handleEdit(item.id)}
-                >
-                  <Text style={styles.editButtonText}>Edit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.commentButton}
-                  onPress={() => viewComments(item.id)}
-                >
-                  <Text style={styles.commentButtonText}>Comment</Text>
-                </TouchableOpacity>
-
-                {/* <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => deletePostApi(item._id)}
-                >
-                  <Text style={styles.deleteButtonText}>Delete</Text>
-                </TouchableOpacity> */}
-              </View>
-            </View>
-          </View>
+  data={posts.slice().reverse()}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item, index }) => (
+    <View style={styles.postSegment} key={index}>
+      <View>
+        <Text style={styles.username}>{item?.user?.name}</Text>
+        <Text>{item.text}</Text>
+        {item?.imageUrl && <Image source={{ uri: `${imageBaseUrl}${item.imageUrl}` }} style={styles.selectedImage} />}
+        {selectedVideo && (
+          <Video
+            source={{ uri: selectedVideo }}
+            rate={1.0}
+            volume={1.0}
+            isMuted={false}
+            resizeMode="cover"
+            shouldPlay={false}
+            isLooping={false}
+            style={{ width: 300, height: 300 }}
+          />
         )}
-      />
+        <View style={styles.editDeleteButtons}>
+          <TouchableOpacity
+            style={styles.likeButton}
+            onPress={() => {
+              if (item?.likes?.some((like) => like === userData?._id)) {
+                unlikePostApi(item._id, userData?._id);
+              } else {
+                likePostApi(item._id, userData?._id);
+              }
+            }}
+          >
+            <Text style={styles.likeButtonText}>
+              {item?.likes?.some((like) => like === userData?._id)
+                ? `Unlike ${item?.likes?.length}`
+                : `Like ${item?.likes?.length}`}
+            </Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => handleEdit(item.id)}
+          >
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity> */}
+
+          {/* Comment button */}
+          <TouchableOpacity
+            style={styles.commentButton}
+            onPress={() => {
+              setCommentModalVisible(true);
+              setSelectedPostId(item._id);
+            }}
+          >
+            <Text style={styles.commentButtonText}>Comment</Text>
+          </TouchableOpacity>
+
+          {/* Delete button */}
+          {/* <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => deletePostApi(item._id)}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity> */}
+        </View>
+      </View>
+
+      {/* Comment box for the selected post */}
+{selectedPostId === item._id && (
+  <>
+    {/* Input box for entering a new comment */}
+    <TextInput
+      style={styles.commentInput}
+      placeholder="Enter your comment..."
+      onChangeText={setCommentText}
+      value={commentText}
+      multiline={true}
+      numberOfLines={4}
+    />
+    <TouchableOpacity
+      style={styles.commentSubmitButton}
+      onPress={addCommentApi}
+    >
+      <Text style={styles.commentSubmitText}>Submit</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+  style={styles.commentButton}
+  onPress={() => setShowComments(!showComments)}
+>
+  <Text style={styles.commentButtonText}>
+    {showComments ? 'Hide Comments' : 'Show Comments'}
+  </Text>
+</TouchableOpacity>
+
+
+    {/* Display existing comments */}
+    {showComments && (
+  <>
+    {item.comments.length > 0 ? (
+      // Display existing comments
+      item.comments.map((comment, index) => (
+        <View key={index} style={styles.commentContainer}>
+          <Text style={styles.username}>{comment.user?.name}</Text>
+          <Text>{comment.text}</Text>
+        </View>
+      ))
+    ) : (
+      // Display a message if there are no comments
+      <Text style={styles.username}>No comments yet</Text>
+    )}
+  </>
+)}
+
+  </>
+)}
+    </View>
+  )}
+/>
+
     </ScrollView>
   );
 };

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, ScrollView, StyleSheet, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { getAllMerchandise } from '../API/Api';
+import { useEffect } from 'react';
 
 const MerchandiseScreen = () => {
   const [cart, setCart] = useState([]);
+  const [merchandise, setMerchandise] = useState([]);
   const [customerDetails, setCustomerDetails] = useState({
     name: '',
     email: '',
@@ -29,7 +32,19 @@ const MerchandiseScreen = () => {
     { id: 3, name: 'Product 3', price: 14.99 },
     // Add more products here
   ];
+  const getAllMerchandiseApi= async () => {
+    try {
+      const response = await getAllMerchandise();
+      console.log(response);
+      setMerchandise(response)
+    } catch (error) {
+      console.error("Error fetching merchandise", error.response);
+    }
+  };
 
+  useEffect(()=> {
+    getAllMerchandiseApi();
+  },[])
   const concerts = [
     {
       id: 1,
@@ -153,10 +168,19 @@ const MerchandiseScreen = () => {
     );
   };
 
-  const ProductCard = ({ product }) => (
+  const ProductCard = ({ product }) => {
+    console.log(product);
+    return(
     <View style={styles.productCard}>
-      <Text style={styles.productName}>{product.name}</Text>
-      <Text style={styles.productPrice}>${product.price}</Text>
+      <Image
+      style={{ width: '100%', height: 200 }}
+      source={{
+        uri: `https://71b2-182-182-214-61.ngrok-free.app${product?.image}`,
+      }}
+    />
+      <Text style={styles.productName}>{`${product.title} $${product.price}`}</Text>
+      <Text style={styles.productPrice}>Description:{product.description}</Text>
+      <Text style={styles.productPrice}>{`Remaining: ${product.remainingItems}`}</Text>
       <TouchableOpacity
         style={styles.addToCartButton}
         onPress={() => addItemToCart(product)}
@@ -164,23 +188,23 @@ const MerchandiseScreen = () => {
         <Text style={styles.addToCartButtonText}>Add to Cart</Text>
       </TouchableOpacity>
     </View>
-  );
+  )};
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.heading}>Product List</Text>
       <FlatList
-        data={products}
-        keyExtractor={(product) => product.id.toString()}
+        data={merchandise}
+        keyExtractor={(product) => product?._id?.toString()}
         renderItem={({ item }) => <ProductCard product={item} />}
       />
-      <Text style={styles.heading}>Concert Tickets</Text>
-      <FlatList
+      {/* <Text style={styles.heading}>Concert Tickets</Text> */}
+      {/* <FlatList
         data={concerts}
         keyExtractor={(concert) => concert.id.toString()}
         renderItem={({ item }) => <ProductCard product={item} />}
       />
-      <ShoppingCart />
+      <ShoppingCart /> */}
     </ScrollView>
   );
 };

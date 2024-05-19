@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useState } from "react";
 import { Login, Register, resetPassword as apiResetPassword} from "./Api";
+import { getAuthToken } from "./storage";
 
 export const AuthContext = createContext();
 
@@ -18,8 +19,8 @@ export const AuthProvider = ({ children }) => {
     setIsLoadings(true);
     await Login(Data)
       .then(async (res) => {
-        await AsyncStorage.setItem("token", JSON.stringify(res.data?.token));
-        await AsyncStorage.setItem("userdata",  JSON.stringify(res.data?._doc));
+      await AsyncStorage.setItem("token", JSON.stringify(res.data?.token));
+       await AsyncStorage.setItem("userdata",  JSON.stringify(res.data?._doc));
         console.log(res.data);
         setUserToken(res.data?.token);
         alert("Logging In");
