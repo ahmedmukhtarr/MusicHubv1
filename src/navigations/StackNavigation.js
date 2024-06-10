@@ -15,8 +15,10 @@ import ProfileScreen from "../screens/ProfileScreen";
 import LanguageSettings from "../screens/miniscreens/LanguageSettings";
 import CustomerServiceScreen from "../screens/miniscreens/CustomerServiceScreen";
 import EditProfile from "../screens/miniscreens/EditProfile";
-
+import Cart from "../screens/miniscreens/Cart"
+import PaymentScreen from "../screens/miniscreens/Payment";
 const Stack = createNativeStackNavigator();
+
 
 const StackNavigation = () => {
   const { usertoken } = useContext(AuthContext);
@@ -39,6 +41,9 @@ const StackNavigation = () => {
             <Stack.Screen name="LanguageSettings" component={LanguageSettings} />
             <Stack.Screen name="CustomerService" component={CustomerServiceScreen} />
             <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="Cart" component={Cart} />
+            <Stack.Screen name="Payment" component={PaymentScreen} />
+           
             </>
       ) : (
         <>

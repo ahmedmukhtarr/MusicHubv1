@@ -2,10 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: `https://71b2-182-182-214-61.ngrok-free.app`,
+  baseURL: `https://ad6c-182-182-240-67.ngrok-free.app/api`,
 });
 
-export const imageBaseUrl = "https://71b2-182-182-214-61.ngrok-free.app";
+export const imageBaseUrl = "https://ad6c-182-182-240-67.ngrok-free.app";
 
 // Add a function to set the Authorization header
 const getAuthToken = async () => {

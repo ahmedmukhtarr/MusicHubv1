@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 const MusicScreen = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [tracks, setTracks] = useState([]);
+  const [searchText, setSearchText] = useState('');
 
   const handleUploadMusic = () => {
     // Handle navigation to the music upload screen.
@@ -61,6 +62,15 @@ const MusicScreen = ({navigation}) => {
     // Add more audio files as needed
   ];
 
+  // Function to filter tracks based on search text
+  const getFilteredTracks = () => {
+    if (searchText.trim() === '') {
+      return tracks; // If search text is empty, return all tracks
+    } else {
+      return tracks.filter(track => track.title.toLowerCase().includes(searchText.toLowerCase()));
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Search Bar */}
@@ -69,6 +79,7 @@ const MusicScreen = ({navigation}) => {
         placeholder="Search music"
         onChangeText={(text) => {
           // Handle search functionality here
+          setSearchText(text);
         }}
       />
 
@@ -91,7 +102,7 @@ const MusicScreen = ({navigation}) => {
         <ActivityIndicator size="small" color="blue" />
        ) : (
         <View style={{ flex: 1, width: '100%' }}>
-          <MusicPlayer tracks={tracks} />
+          <MusicPlayer tracks={getFilteredTracks()} />
         </View>
        )}
 
