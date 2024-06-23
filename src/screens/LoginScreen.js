@@ -2,11 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ImageBackground, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { EvilIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Facebook from 'expo-auth-session/providers/facebook';
+// import * as Facebook from 'expo-auth-session/providers/facebook';
 import * as WebBrowser from 'expo-web-browser';
 import { AuthContext } from '../API/AuthContext';
 
-WebBrowser.maybeCompleteAuthSession();
+// WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
@@ -17,24 +17,24 @@ const LoginScreen = ({ navigation }) => {
 
 
 
-  const [request, response, promptAsync] = Facebook.useAuthRequest({
-    clientId: '7578729042160651', // Replace with your Facebook App ID
-  });
+  // const [request, response, promptAsync] = Facebook.useAuthRequest({
+  //   clientId: '7578729042160651', // Replace with your Facebook App ID
+  // });
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      fetch(`https://graph.facebook.com/me?access_token=${authentication.accessToken}&fields=id,name,email`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Handle user data (data.id, data.name, data.email)
-          setUser(data);
-        })
-        .catch((error) => {
-          console.error('Error fetching Facebook user data:', error);
-        });
-    }
-  }, [response]);
+  // useEffect(() => {
+  //   if (response?.type === 'success') {
+  //     const { authentication } = response;
+  //     fetch(`https://graph.facebook.com/me?access_token=${authentication.accessToken}&fields=id,name,email`)
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         // Handle user data (data.id, data.name, data.email)
+  //         setUser(data);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching Facebook user data:', error);
+  //       });
+  //   }
+  // }, [response]);
   
   useEffect(() => {
     checkUserLogin();
@@ -62,44 +62,44 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  const checkStoredUserData = async () => {
-    try {
-      const storedData = await AsyncStorage.getItem('userData');
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        if (email === parsedData.email && password === parsedData.password) {
-          navigation.navigate('Home');
-        } else {
-          alert('Invalid email or password.');
-        }
-      } else {
-        alert('No user data found. Please sign up first.');
-      }
-    } catch (error) {
-      console.error('Error checking stored user data:', error);
-    }
-  };
+  // const checkStoredUserData = async () => {
+  //   try {
+  //     const storedData = await AsyncStorage.getItem('userData');
+  //     if (storedData) {
+  //       const parsedData = JSON.parse(storedData);
+  //       if (email === parsedData.email && password === parsedData.password) {
+  //         navigation.navigate('Home');
+  //       } else {
+  //         alert('Invalid email or password.');
+  //       }
+  //     } else {
+  //       alert('No user data found. Please sign up first.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error checking stored user data:', error);
+  //   }
+  // };
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      fetch(
-        `https://graph.facebook.com/me?access_token=${authentication.accessToken}&fields=id,name,picture.type(large)`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setUser(data);
-        });
-    }
-  }, [response]);
+  // useEffect(() => {
+  //   if (response?.type === 'success') {
+  //     const { authentication } = response;
+  //     fetch(
+  //       `https://graph.facebook.com/me?access_token=${authentication.accessToken}&fields=id,name,picture.type(large)`
+  //     )
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         setUser(data);
+  //       });
+  //   }
+  // }, [response]);
 
-  const handleFacebookLogin = async () => {
-    const result = await promptAsync();
+  // const handleFacebookLogin = async () => {
+  //   const result = await promptAsync();
 
-    if (result.type !== 'success') {
-      alert('Facebook login failed.');
-    }
-  };
+  //   if (result.type !== 'success') {
+  //     alert('Facebook login failed.');
+  //   }
+  // };
 
   return (
     <ImageBackground
@@ -136,10 +136,10 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.loginWithText}>Login with:</Text>
         <View style={styles.socialButtonsContainer}>
          
-          <TouchableOpacity style={styles.socialButton} disabled={!request} onPress={handleFacebookLogin}>
+          {/* <TouchableOpacity style={styles.socialButton} disabled={!request} onPress={handleFacebookLogin}>
             <EvilIcons name="sc-facebook" size={30} color="white" />
           </TouchableOpacity>
-          {/* Add buttons for Google and Twitter login here */}
+          Add buttons for Google and Twitter login here */}
         </View>
         <View style={styles.bottomLinksContainer}>
           <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('SignUp')}>

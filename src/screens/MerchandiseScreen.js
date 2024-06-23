@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { getAllMerchandise, imageBaseUrl } from '../API/Api';
+import { AuthContext } from '../API/AuthContext';
 
 const MerchandiseScreen = ({ navigation }) => {
   const [cart, setCart] = useState([]);
+  const { setCartGlobal, cartGlobal } = useContext(AuthContext);
   const [merchandise, setMerchandise] = useState([]);
 
   const addItemToCart = (item) => {
-    setCart([...cart, item]);
-    navigation.navigate('Cart', { cart: [...cart, item] });
+    setCartGlobal([...cartGlobal, item]);
+    navigation.navigate('Cart');
   };
 
   const getAllMerchandiseApi = async () => {
@@ -32,9 +34,10 @@ const MerchandiseScreen = ({ navigation }) => {
           uri: `${imageBaseUrl}${product?.image}`,
         }}
       />
-      <Text style={styles.productName}>{`${product.title} $${product.price}`}</Text>
-      <Text style={styles.productPrice}>Description: {product.description}</Text>
-      <Text style={styles.productPrice}>{`Remaining: ${product.remainingItems}`}</Text>
+      <Text style={styles.productName}>{`${product.title}`}</Text>
+      <Text style={styles.productPrice}>{`Rs.${product.price}`}</Text>
+      <Text style={styles.productDetails}>Description: {product.description}</Text>
+      <Text style={styles.productDetails}>{`Remaining: ${product.remainingItems}`}</Text>
       <TouchableOpacity
         style={styles.addToCartButton}
         onPress={() => addItemToCart(product)}
@@ -49,9 +52,9 @@ const MerchandiseScreen = ({ navigation }) => {
       <Text style={styles.heading}>Product List</Text>
       <TouchableOpacity
         style={styles.viewCartButton}
-        onPress={() => navigation.navigate('Cart', { cart, setCart })}
+        onPress={() => navigation.navigate('Cart')}
       >
-        <Text style={styles.viewCartButtonText}>View Cart ({cart.length})</Text>
+        <Text style={styles.viewCartButtonText}>View Cart ({cartGlobal.length})</Text>
       </TouchableOpacity>
       <FlatList
         data={merchandise}
@@ -66,38 +69,60 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     flex: 1,
-    backgroundColor: "#E6E6FA",
+    backgroundColor: "#F5FEFD",
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
     marginBottom: 16,
     fontWeight: 'bold',
+    color:"#DA70D6",
+    textShadowColor: 'pink',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
   },
   productCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 30,
     borderRadius: 8,
+    borderColor:"#EFC9D0",
+    borderWidth:5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   productName: {
-    fontSize: 18,
+    fontSize: 30,
     fontWeight: 'bold',
+    color:"#6600FF",
+  },
+  productDetails: {
+    fontSize: 16,
+    color: 'green',
+    marginTop:5,
   },
   productPrice: {
     fontSize: 16,
-    color: 'green',
+    color: "#6600FF",
+    marginTop:5,
   },
   addToCartButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#DA70D6",
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',
+    marginTop:15,
   },
   addToCartButtonText: {
     color: '#fff',
   },
   viewCartButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#DA70D6",
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',

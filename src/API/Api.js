@@ -2,10 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: `https://ad6c-182-182-240-67.ngrok-free.app/api`,
+  baseURL: `https://47bd-182-182-235-145.ngrok-free.app/api`,
 });
 
-export const imageBaseUrl = "https://ad6c-182-182-240-67.ngrok-free.app";
+export const imageBaseUrl = "https://47bd-182-182-235-145.ngrok-free.app";
 
 // Add a function to set the Authorization header
 const getAuthToken = async () => {
@@ -395,6 +395,123 @@ export const getMerchandiseById = async (merchandiseId) => {
     return response?.data;
   } catch (error) {
     console.error('Error fetching merchandise by ID:', error);
+    throw error;
+  }
+};
+// Add this function to your API file
+export const submitPaymentDetails = async (paymentDetails) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.post('/payment/payment-details', paymentDetails, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error submitting payment details:', error);
+    throw error;
+  }
+};
+
+// Get all payment details
+export const getAllPaymentDetails = async (userId) => {
+  console.log(userId);
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get(`/payment/payment-details?userId=${userId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching payment details:', error);
+    throw error;
+  }
+};
+
+// Get payment detail by ID
+export const getPaymentDetailById = async (paymentDetailId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get(`/payment/payment-details/${paymentDetailId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching payment detail by ID:', error);
+    throw error;
+  }
+};
+
+// Update payment detail by ID
+export const updatePaymentDetail = async (paymentDetailId, paymentDetails) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.put(`/payment-details/${paymentDetailId}`, paymentDetails, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error updating payment detail:', error);
+    throw error;
+  }
+};
+
+// Delete payment detail by ID
+export const deletePaymentDetail = async (paymentDetailId) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.delete(`/payment-details/${paymentDetailId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error deleting payment detail:', error);
+    throw error;
+  }
+};
+
+export const saveRecentSearch = async (searchDetails) => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.post('/recentsearches/recent-searches', searchDetails, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error saving recent search:', error);
+    throw error;
+  }
+};
+
+export const getAllRecentSearches = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axiosClient.get(`/recentsearches/recent-searches`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching payment details:', error);
     throw error;
   }
 };

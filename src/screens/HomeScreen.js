@@ -213,7 +213,7 @@ const HomeScreen = ({ navigation }) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-
+      <Text style={styles.postFeedHeading}>Post Feed</Text>
       <TextInput
         style={styles.textInput}
         placeholder="What's on your mind?"
@@ -243,13 +243,6 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.postButtonText}>Post</Text>
       </TouchableOpacity> */}
 
-      <Text style={styles.postFeedHeading}>Post Feed</Text>
-
-
-     
-
-
-
       <FlatList
   data={posts.slice().reverse()}
   keyExtractor={(item) => item.id}
@@ -257,7 +250,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.postSegment} key={index}>
       <View>
         <Text style={styles.username}>{item?.user?.name}</Text>
-        <Text>{item.text}</Text>
+        <Text style={styles.itemText}>{item.text}</Text>
         {item?.imageUrl && <Image source={{ uri: `${imageBaseUrl}${item.imageUrl}` }} style={styles.selectedImage} />}
         {selectedVideo && (
           <Video
@@ -376,13 +369,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     paddingTop: 30,
-    backgroundColor: "#E6E6FA",
+    backgroundColor: "#F5FEFD",
   },
   textInput: {
     width: '80%',
     height: 100,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#6600FF",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
@@ -394,7 +387,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   uploadButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#DA70D6",
     padding: 10,
     borderRadius: 5,
     flex: 1,
@@ -422,30 +415,49 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 10
+    padding: 10,
+    
   },
   postFeedHeading: {
-    fontSize: 30,
+    fontSize: 40,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: 'blue',
     marginTop: 20,
+    color:"#DA70D6",
+    textShadowColor: 'pink',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
   },
   postSegment: {
-    borderWidth: 1,
+    borderWidth: 4,
     backgroundColor: '#f0f0f0',
     padding: 10,
     marginVertical: 5,
-    borderRadius: 5,
+    borderRadius: 40,
     width: '100%', // Ensures full width
     minWidth: 350, // Set a minimum width (adjust as needed)
+    borderColor:"#DA70D6",
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   username: {
      fontSize: 20,
      fontWeight: 'bold',
-     color: 'purple', 
-     
-  },
+     color: "#DA70D6", 
+     textAlign:'center',
+  }, 
+   itemText: {
+   
+    
+   
+    textAlign:'center',
+ },
   editInput: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -473,9 +485,10 @@ const styles = StyleSheet.create({
 
     padding: 5,
     borderRadius: 5,
+    
   },
   commentButtonText: {
-    color: 'green',
+    color: 'red',
     textAlign: 'center',
   },
   // Delete button style
@@ -503,6 +516,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 10,
+    marginLeft:90,
   },
   centeredView: {
     flex: 1,
@@ -527,20 +541,22 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     width: '100%',
-    height: 100,
+    height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#6600FF",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+
   },
   commentSubmitButton: {
-    backgroundColor: '#007AFF',
     padding: 10,
     borderRadius: 5,
-    width: '100%',
+    width: '50%',
     alignItems: 'center',
     marginTop: 10,
+    backgroundColor:  "#DA70D6",
+    marginLeft: 82,
   },
   commentSubmitText: {
     color: 'white',
@@ -564,6 +580,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
+    textAlign:'center',
+    justifyContent:'center',
+    alignItems:'center',
   },
 
 });

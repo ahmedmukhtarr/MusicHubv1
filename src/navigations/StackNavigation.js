@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TabNavigation } from "./TabNavigation";
-import MusicUploadScreen from "../screens/MusicUploadScreen";
 import Library from "../screens/miniscreens/Library";
 import PlaylistScreen from "../screens/miniscreens/PlaylistScreen";
 import LoginScreen from "../screens/LoginScreen";
@@ -17,6 +16,8 @@ import CustomerServiceScreen from "../screens/miniscreens/CustomerServiceScreen"
 import EditProfile from "../screens/miniscreens/EditProfile";
 import Cart from "../screens/miniscreens/Cart"
 import PaymentScreen from "../screens/miniscreens/Payment";
+import MyOrders from "../screens/miniscreens/MyOrders";
+
 const Stack = createNativeStackNavigator();
 
 
@@ -31,7 +32,6 @@ const StackNavigation = () => {
       {usertoken ? (
         <>
             <Stack.Screen name="Home" component={TabNavigation} />
-            <Stack.Screen name="MusicUpload" component={MusicUploadScreen} />
             <Stack.Screen name="Library" component={Library} />
             <Stack.Screen name="Playlist" component={PlaylistScreen} />
             <Stack.Screen name="MusicPlayer" component={MusicPlayer} />
@@ -43,7 +43,7 @@ const StackNavigation = () => {
             <Stack.Screen name="EditProfile" component={EditProfile} />
             <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen name="Payment" component={PaymentScreen} />
-           
+            <Stack.Screen name="Orders" component={MyOrders} />
             </>
       ) : (
         <>

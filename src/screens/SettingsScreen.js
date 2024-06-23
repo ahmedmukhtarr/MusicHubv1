@@ -40,15 +40,22 @@ const SettingsScreen = ({ navigation }) => {
         onPress={() => navigateTo('CustomerService')}
       >
         <Text style={styles.settingText}>Customer Service</Text>
-        <FontAwesome name="user" style={styles.settingIcon} />
+        <FontAwesome name="headphones" style={styles.settingIcon} />
       </TouchableOpacity>
-      {/* <TouchableOpacity
-        style={styles.settingItem}
-        onPress={() => navigateTo('LanguageSettings')}
-      >
-        <Text style={styles.settingText}>Language Settings</Text>
-        <FontAwesome name="globe" style={styles.settingIcon} />
-      </TouchableOpacity> */}
+             <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => navigateTo('Library')}
+            >
+              <Text style={styles.settingText}>My Library</Text>
+              <FontAwesome name="music" style={styles.settingIcon} />
+            </TouchableOpacity> 
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => navigateTo('Orders')}
+            >
+              <Text style={styles.settingText}>My Orders</Text>
+              <FontAwesome name="shopping-bag" style={styles.settingIcon} />
+            </TouchableOpacity> 
       <TouchableOpacity
         style={styles.settingItem}
         onPress={() => navigateTo('AppInfoScreen')}
@@ -68,12 +75,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#E6E6FA",
+    backgroundColor: "#F5FEFD",
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
+    color:"#DA70D6",
+    textShadowColor: 'pink',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
   },
   settingItem: {
     flexDirection: 'row',
@@ -85,9 +96,11 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 16,
+    color:"#6600FF",
   },
   settingIcon: {
     fontSize: 24,
+    color:"#DA70D6",
   },
   logoutButton: {
     flexDirection: 'row',

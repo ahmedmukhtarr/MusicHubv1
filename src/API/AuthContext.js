@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState("");
   const [signInError, setSignInError] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [cartGlobal, setCartGlobal] = useState([]);
 
   //Login Api
   const Loginuser = async (email, password) => {
@@ -93,6 +94,8 @@ export const AuthProvider = ({ children }) => {
         signInError,
         userData,
         resetPassword,
+        setCartGlobal,
+        cartGlobal
       }}
     >
       {children}

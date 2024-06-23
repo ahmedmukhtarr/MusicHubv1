@@ -1,23 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { AuthContext } from '../../API/AuthContext';
 
-const CartScreen = ({ route, navigation }) => {
-  const { cart, setCart } = route.params;
+const CartScreen = ({ navigation }) => {
+  const { setCartGlobal, cartGlobal } = useContext(AuthContext);
 
   const calculateTotalAmount = () => {
-    return cart.reduce((total, item) => total + item.price, 0);
+    return cartGlobal.reduce((total, item) => total + item.price, 0);
   };
 
   const removeItemFromCart = (item) => {
-    const updatedCart = cart.filter((product) => product._id !== item._id);
-    setCart(updatedCart);
-    navigation.setParams({ cart: updatedCart }); // Update the cart in navigation params
+    const updatedCart = cartGlobal.filter((product) => product._id !== item._id);
+    setCartGlobal(updatedCart);
   };
-
-  useEffect(() => {
-    navigation.setParams({ cart });
-  }, [cart]);
 
   const handleContinueToPayment = () => {
     navigation.navigate('Payment');
@@ -26,14 +22,14 @@ const CartScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Shopping Cart</Text>
-      {cart.length > 0 ? (
+      {cartGlobal.length > 0 ? (
         <FlatList
-          data={cart}
+          data={cartGlobal}
           keyExtractor={(product) => product._id.toString()}
           renderItem={({ item }) => (
             <View style={styles.cartItem}>
               <Text style={styles.itemName}>{item.title}</Text>
-              <Text style={styles.itemPrice}>${item.price}</Text>
+              <Text style={styles.itemPrice}>Rs.{item.price}</Text>
               <TouchableOpacity onPress={() => removeItemFromCart(item)}>
                 <FontAwesome name="minus-circle" size={24} color="red" />
               </TouchableOpacity>
@@ -43,7 +39,7 @@ const CartScreen = ({ route, navigation }) => {
       ) : (
         <Text style={styles.emptyCart}>Your cart is empty.</Text>
       )}
-      <Text style={styles.totalAmount}>Total Amount: ${calculateTotalAmount()}</Text>
+      <Text style={styles.totalAmount}>Total Amount: Rs.{calculateTotalAmount()}</Text>
       <TouchableOpacity
         style={styles.continueButton}
         onPress={handleContinueToPayment}
@@ -61,9 +57,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6E6FA",
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
     marginBottom: 16,
     fontWeight: 'bold',
+    color:"#DA70D6",
+    textShadowColor: 'pink',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
   },
   cartItem: {
     flexDirection: 'row',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   continueButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#DA70D6",
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',

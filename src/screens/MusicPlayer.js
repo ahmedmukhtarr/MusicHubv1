@@ -5,10 +5,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import Slider from '@react-native-community/slider';
-import { imageBaseUrl } from '../API/Api';
+import { imageBaseUrl, saveRecentSearch } from '../API/Api';
+import { getUserDetail } from '../API/storage';
 
-const MusicPlayer = ({ onLogout, tracks }) => {
-  console.log("Tracks", tracks);
+
+const MusicPlayer = ({ onLogout, tracks, searchText, heading }) => {
   const [sound, setSound] = useState();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -16,7 +17,7 @@ const MusicPlayer = ({ onLogout, tracks }) => {
   const [isReplay, setIsReplay] = useState(false);
   const [totalDuration, setTotalDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-
+ 
   useEffect(() => {
     const loadSound = async () => {
       if (sound) {
@@ -141,16 +142,36 @@ const MusicPlayer = ({ onLogout, tracks }) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
+  
+  const handleUploadRecentSearches = async (item, index) => {
+    if (searchText.trim() === '') {
+      setCurrentIndex(index);
+    } else {
+      setCurrentIndex(index);
+      console.log(item);
+      try {
+        await saveRecentSearch(item);
+        console.log('Recent search saved successfully');
+      } catch (error) {
+        console.error('Error saving recent search:', error);
+      }
+    }
+  };
+
   return (
     <>
       <View>
-        <Text style={styles.listHeading}>Music List</Text>
+        <Text style={styles.listHeading}>{heading}</Text>
         <FlatList
           data={tracks}
           keyExtractor={(item, index) => index.toString()}
+          style={{ maxHeight: "90%" }}
           renderItem={({ item, index }) => (
-            <TouchableOpacity style={styles.listContainer} onPress={() => setCurrentIndex(index)}>
-              <Text>{item?.title}</Text>
+            <TouchableOpacity style={styles.listContainer} onPress={() => {
+              handleUploadRecentSearches(item, index);
+            }}>
+              <Text style={styles.title}>{item?.title}</Text>
+              {item.user && <Text style={styles.uploadedBy}>Artist: {item.user.name}</Text>}
               <View style={styles.lineStyle}></View>
             </TouchableOpacity>
           )}
@@ -161,23 +182,23 @@ const MusicPlayer = ({ onLogout, tracks }) => {
         <Text style={styles.trackTitle}>{tracks[currentIndex]?.title}</Text>
         <View style={styles.controls}>
           <TouchableOpacity style={styles.controlButton1} onPress={() => setIsShuffle(!isShuffle)}>
-            <Entypo name="shuffle" size={30} color={isShuffle ? 'blue' : 'black'} />
+            <Entypo name="shuffle" size={30} color={isShuffle ? 'purple' : 'white'} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.controlButton} onPress={playPrevious}>
-            <AntDesign name="banckward" size={30} color="black" />
+            <AntDesign name="banckward" size={28} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.controlButton} onPress={togglePlayback}>
             {isPlaying ? (
-              <AntDesign name="pausecircle" size={40} color="black" />
+              <AntDesign name="pausecircle" size={60} color="white" />
             ) : (
-              <AntDesign name="play" size={40} color="black" />
+              <AntDesign name="play" size={60} color="white" />
             )}
           </TouchableOpacity>
           <TouchableOpacity style={styles.controlButton} onPress={playNext}>
-            <AntDesign name="forward" size={30} color="black" />
+            <AntDesign name="forward" size={28} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.controlButton1} onPress={() => setIsReplay(!isReplay)}>
-            <MaterialIcons name="replay" size={30} color={isReplay ? 'blue' : 'black'} />
+          <TouchableOpacity style={styles.controlButton2} onPress={() => setIsReplay(!isReplay)}>
+            <MaterialIcons name="replay" size={30} color={isReplay ? 'purple' : 'white'} />
           </TouchableOpacity>
         </View>
 
@@ -193,6 +214,9 @@ const MusicPlayer = ({ onLogout, tracks }) => {
           onValueChange={onSliderValueChange}
           onSlidingComplete={onSlidingComplete}
           disabled={!sound}
+          thumbTintColor='white'
+          maximumTrackTintColor='white'
+          
         />
 
       </View>
@@ -206,17 +230,29 @@ const styles = StyleSheet.create({
     bottom: 0, // Place it at the exact bottom of the screen
     left: 0, // Align it to the left
     right: 0, // Align it to the right
-    backgroundColor: '#CBC3E3',
+    backgroundColor: "#DA70D6",
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   listHeading: {
-    color: 'black',
-    fontSize: 22,
+    color:"#DA70D6",
+    textShadowColor: 'pink',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
+    fontSize: 32,
     fontWeight: 'bold',
     alignItems: 'flex-start',
-    marginBottom: 5
+    marginBottom: 5,
+    marginTop: 10,
   },
   artwork: {
     width: 500,
@@ -226,6 +262,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 10,
+    color: "white",
   },
   controls: {
     flexDirection: 'row',
@@ -239,18 +276,32 @@ const styles = StyleSheet.create({
   controlButton1: {
     padding: 15,
     marginRight: 10,
+    marginLeft: 20,
+  },
+  controlButton2: {
+    padding: 15,
+    marginRight: 10,
+   
   },
   listContainer: {
     flex: 1,
     marginTop: 10,
     paddingTop: 5,
     paddingBottom: 5,
-    width: '100%'
+    width: '100%',
   },
   lineStyle:{
     borderWidth: 0.5,
-    borderColor:'black',
+    borderColor:"#DA70D6",
     marginTop:15,
+  },
+  uploadedBy:{
+    fontSize: 13,
+    color: 'grey',
+  },
+  title:{
+    fontSize: 14,
+    color: "#6600FF",
   }
 });
 

@@ -66,8 +66,8 @@ const ForgotPasswordScreen = () => {
         secureTextEntry
       />
 
-      <TouchableOpacity style={{borderColor: 'white',borderRadius: 10, borderWidth: 1, alignItems: 'center', backgroundColor: 'pink', height: 30, width: 130}} onPress={handleResetPassword}>
-            <Text>Reset Password</Text>
+      <TouchableOpacity style={{padding: 10, borderColor: 'white',borderRadius: 10,  alignItems: 'center', backgroundColor: '#DA70D6'}} onPress={handleResetPassword}>
+            <Text style={{color:'white'}}>Reset Password</Text>
           </TouchableOpacity>
     </View>
     </ImageBackground>
